@@ -1,0 +1,2 @@
+model_checkpoint_path: "S:\\Dropbox (Personal)\\Assignments\\6.344\\project\\6344-project\\exposure_cnn\\model.ckpt"
+all_model_checkpoint_paths: "S:\\Dropbox (Personal)\\Assignments\\6.344\\project\\6344-project\\exposure_cnn\\model.ckpt"
