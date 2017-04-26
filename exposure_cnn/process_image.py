@@ -3,12 +3,14 @@ import tensorflow as tf
 from PIL import Image
 import os
 
+# create a prelu image
 def prelu(x, alpha, name):
     pos = tf.nn.relu(x, name)
     neg = alpha * (x - abs(x)) * 0.5
     
     return pos + neg
 
+# build the net: structure fully defined within this function
 def buildModel(image):
     # conv1
     with tf.variable_scope('conv1') as scope:
@@ -68,9 +70,12 @@ def buildModel(image):
 ##    return conv5
     return conv2
 
+# currently not used: do some simple transformations to get more mileage out of an image
 def setFromImage(image):
     return [image, np.flipud(image), np.fliplr(image)]
 
+# specialized to current file structure: images should be within 2 layers of folders
+# extract full list of image file names to use
 def fileList(filepath):
     filelist = []
     directories = os.listdir(filepath)
@@ -80,7 +85,10 @@ def fileList(filepath):
         filelist.extend(fullfilenames)
     return filelist
 
-def runTrain(loadModel, loadName='', saveName=''):
+# train on all 32x32 image pieces once
+# loadModel = bool: True if a loadName is passed in, to load a model from memory, False if initializing new model
+# saveName is the location to save the new model
+def runTrain(loadModel, learning_rate_init, loadName='', saveName=''):
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         currentDirectory = 'S:\\6344-project\\exposure_cnn\\'
         trainshape = (32, 32, 1, 3)
@@ -91,12 +99,15 @@ def runTrain(loadModel, loadName='', saveName=''):
         loss = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(l, y)))/norm) # RMSE
         tf.summary.scalar('loss', loss)
 
-        learning_rate_init = 0.000001
+        #learning_rate_init = 0.000001
+        #momentum = 0.9
+        momentum = 0.5
         decay_steps = 10000
         decay_rate = 0.9
         global_step = tf.Variable(0, trainable=False)
         learning_rate = learning_rate_init#tf.train.exponential_decay(learning_rate_init, global_step, decay_steps, decay_rate)
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+        #optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+        optimizer = tf.train.MomentumOptimizer(learning_rate, momentum, use_nesterov=True)
         train_op = optimizer.minimize(loss)
         
         input_filepath = 'phos\\0\\'
@@ -145,14 +156,14 @@ def runTrain(loadModel, loadName='', saveName=''):
                 step = step + 1
             else:
                 print('From {}: {} does not exist'.format(input_file, label_file))
-
+        
         saver.save(sess, currentDirectory + saveName) # save model checkpoint
     #im = Image.open('input.bmp')
     #h, w = im.size
     #im_te = np.asarray(im).astype('float32')
     #im_in =  im_te.reshape([h, w, 1, 3]);
     
-
+# process a single image of any size using the provided net saved at modelName
 def processImage(modelName, imageName):
     im = Image.open(imageName)
     print(im.size)
@@ -166,7 +177,6 @@ def processImage(modelName, imageName):
     y = buildModel(x)
 
     
-
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         saver = tf.train.Saver()
         saver.restore(sess, modelName)
@@ -176,19 +186,30 @@ def processImage(modelName, imageName):
         im_out = im_out.reshape([w, h, 3]).clip(0, 255).astype('uint8')
     im_o = Image.fromarray(im_out)
     im_o.save('output.bmp')
-    #im_out = y.eval(session=sess,feed_dict={x:im_in})
-    #im_out = im_out.reshape([h, w, 3]).astype('uint8')
-    #print(np.shape(im_out))
 
-#im_o = Image.fromarray(im_out)
 
-#im_o.save('output.bmp')
-modelName = 'model\\model.ckpt'
-#runTrain(False, saveName=modelName)
-#runTrain(True, loadName=modelName, saveName=modelName)
+modelPath = 'model\\'
+modelName = modelPath + 'model.ckpt'
+# Begin a new model
+#runTrain(False, 0.000001, saveName=modelName)
 
+'''
+for i in range(5):
+    loadModel = modelPath + modelName
+    modelPath = 'model{}\\'.format(i)
+    if not os.path.exists(modelPath):
+        os.makedirs(modelPath)
+    runTrain(True, loadName=loadModel, saveName=modelPath+modelName)
+'''
+# Update an existing model
+runTrain(True, 0.0000007, loadName=modelName, saveName=modelName)
+
+
+# Run an image through the net
+'''
 scene = 15
 exposure = 0
 phos_path = 'C:\\Users\\vysarge\\Documents\\hdr_dataset\\Phos2_3MP\\Phos2_scene{}\\'.format(scene)
 test_name = 'Phos2_uni_sc{}_{}.png'.format(scene, exposure)
 processImage(modelName, phos_path + test_name)
+'''
