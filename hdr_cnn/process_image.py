@@ -158,7 +158,7 @@ for i in range(5):
 	runTrain(False, 0.000001, saveName=runModelPath+'model.ckpt')
     else:
         loadPath = modelPath+'model'+str(i-1)+'/'
-	runTrain(True, loadName=loadModel, saveName=runModelPath+modelName)
+	runTrain(True, loadName=loadPath+'model.ckpt', saveName=runModelPath+modelName)
 #'''
 # Update an existing model
 #runTrain(True, 0.0000007, loadName=modelName, saveName=modelName)
