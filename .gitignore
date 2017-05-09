@@ -1,3 +1,5 @@
+*.cr2
+*.nef
+*.jpg
 *.png
 *.bmp
-*.ckpt*
