@@ -1,0 +1,6 @@
+model_checkpoint_path: "S:\\6344-project\\exposure_cnn\\model\\model8\\model.ckpt"
+all_model_checkpoint_paths: "S:\\6344-project\\exposure_cnn\\model\\model4\\model.ckpt"
+all_model_checkpoint_paths: "S:\\6344-project\\exposure_cnn\\model\\model5\\model.ckpt"
+all_model_checkpoint_paths: "S:\\6344-project\\exposure_cnn\\model\\model6\\model.ckpt"
+all_model_checkpoint_paths: "S:\\6344-project\\exposure_cnn\\model\\model7\\model.ckpt"
+all_model_checkpoint_paths: "S:\\6344-project\\exposure_cnn\\model\\model8\\model.ckpt"

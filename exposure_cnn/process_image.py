@@ -6,10 +6,14 @@ import random
 import cv2
 
 device_name = "/cpu:0"
-ycrcb = False
+#device_name = "/gpu:0"
+ycrcb = True
 input_w = 3000
 input_h = 2000
-#device_name = "/gpu:0"
+training = False
+plusLabel = True
+
+currentDirectory = 'S:\\6344-project\\exposure_cnn\\'
 
 # create a prelu image
 def prelu(x, alpha, name):
@@ -22,7 +26,7 @@ def prelu(x, alpha, name):
 def buildModel(image, isTraining):
     # conv1
     with tf.variable_scope('conv1') as scope:
-        kernel = tf.Variable(tf.random_normal([1, 1, 3, 32], stddev=0.05), name='weights')
+        kernel = tf.Variable(tf.random_normal([3, 3, 3, 32], stddev=0.05), name='weights')
         conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAME')
         biases = tf.Variable(tf.zeros([32]), name='biases')
         pre_activation = tf.nn.bias_add(conv, biases)
@@ -103,8 +107,6 @@ def runTrain(x, y, saver, loadModel, plusExposure, learning_rate, momentum, load
         print(reduced)
         loss = tf.sqrt(reduced) # RMSE
         tf.summary.scalar('loss', loss)
-        
-        currentDirectory = 'S:\\6344-project\\exposure_cnn\\'
 
         global_step = tf.Variable(0, trainable=False)
         #optimizer = tf.train.GradientDescentOptimizer(learning_rate)
@@ -284,12 +286,12 @@ def train(modelName, epochs):
         saver = tf.train.Saver()
         learning_rate = 0.000003
         momentum = 0.9
-        runTrain(x, y, saver, False, True, learning_rate, momentum, loadName='', saveName=modelName+'0')
+        runTrain(x, y, saver, False, plusLabel, learning_rate, momentum, loadName='', saveName=modelName+'0')
         for i in range(epochs-1):
             loadName = modelName+'{}'.format(i)
             saveName = modelName+'{}'.format(i+1)
             learning_rate = learning_rate / 2
-            runTrain(x, y, saver, True, True, learning_rate, momentum, loadName=loadName, saveName=saveName)
+            runTrain(x, y, saver, True, plusLabel, learning_rate, momentum, loadName=loadName, saveName=saveName)
 
 def trainChannel(modelName, epochs):
     assert(epochs>0, 'Must train for at least one epoch!')
@@ -342,9 +344,9 @@ def processImage(x, y, modelName, imageName, outputName):
         print('Load model from ' + modelName)
         
         im_out = y.eval(session=sess,feed_dict={x:im_in})
-        im_out = im_out.reshape([h, w, 3]).clip(0, 255).astype('uint8')
+        im_o = im_out.reshape([h, w, 3]).clip(0, 255).astype('uint8')
     if (ycrcb):
-        im_o = cv2.cvtColor(im_out, cv2.COLOR_YCR_CB2RGB)
+        im_o = cv2.cvtColor(im_o, cv2.COLOR_YCR_CB2RGB)
     #im_o = cv2.cvtColor(im_out, cv2.COLOR_HSV2RGB)
     
     cv2.imwrite(outputName, im_o)
@@ -354,27 +356,29 @@ def processImage(x, y, modelName, imageName, outputName):
 modelPath = 'model\\'
 modelName = modelPath + 'model'
 # train a new model
-train(modelName, 9)
+if (training):
+    train(modelName, 9)
 #trainChannel(modelName, 3)
 
 
 # Run an image through the net
-'''
-modelPath = 'model\\'
-modelName = modelPath + 'model8\model.ckpt'
+if not training:
+    modelPath = 'model\\'
+    modelName = modelPath + 'model8\model.ckpt'
 
-config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
-with tf.device(device_name):
-    x = tf.placeholder('float32', shape=(input_h, input_w, 1, 3))
-    y = buildModel(x, True)
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
+    with tf.device(device_name):
+        x = tf.placeholder('float32', shape=(input_h, input_w, 1, 3))
+        y = buildModel(x, True)
 
-image_dir = 'inputs'
-output_dir = 'outputs'
-for directory in os.listdir(image_dir):
-    for image_file in os.listdir(image_dir + '\\' + directory):
-        processImage(x, y, modelName, image_dir+'\\'+directory+'\\'+image_file, output_dir+'\\'+directory+'\\'+image_file)
+    image_dir = 'inputs'
+    output_dir = 'outputs'
+    for directory in os.listdir(image_dir):
+        if not os.path.exists(currentDirectory+output_dir+'\\'+directory):
+            os.makedirs(currentDirectory+output_dir+'\\'+directory)
+        for image_file in os.listdir(image_dir + '\\' + directory):
+            processImage(x, y, modelName, image_dir+'\\'+directory+'\\'+image_file, output_dir+'\\'+directory+'\\'+image_file)
 
-'''
 
 #processImage(x, y, modelName, 'input.jpg', 'output.jpg')
 #processImage(x, y, modelName, 'input2.jpg', 'output2.jpg')
