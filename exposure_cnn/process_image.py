@@ -12,8 +12,11 @@ input_w = 3000
 input_h = 2000
 training = False
 plusLabel = True
+#os_slash = '\\'
+os_slash = '/'
 
-currentDirectory = 'S:\\6344-project\\exposure_cnn\\'
+currentDirectory = '/home/vysarge/Documents/repos/6344-project/exposure_cnn/'
+#currentDirectory = 'S:\\6344-project\\exposure_cnn\\'
 
 # create a prelu image
 def prelu(x, alpha, name):
@@ -81,7 +84,7 @@ def fileList(filepath):
     directories = os.listdir(filepath)
     for directory in directories:
         filenames = os.listdir(filepath + directory)
-        fullfilenames = [filepath + directory + '\\' + x for x in filenames]
+        fullfilenames = [filepath + directory + os_slash + x for x in filenames]
         filelist.extend(fullfilenames)
     random.shuffle(filelist)
     return filelist
@@ -114,7 +117,7 @@ def runTrain(x, y, saver, loadModel, plusExposure, learning_rate, momentum, load
         #optimizer = tf.train.AdagradOptimizer(learning_rate)
         train_op = optimizer.minimize(loss)
         
-        #input_filepath = 'phos\\0\\'
+        #input_filepath = 'phos' + os_slash + '0' + os_slash
         #label_filepath = 'phos\\plus_2\\'
         input_filepath = 'C:\\Users\\vysarge\\Documents\\hdr_dataset\\empapatches\\0\\'
         if (plusExposure):
@@ -349,11 +352,11 @@ def processImage(x, y, modelName, imageName, outputName):
         im_o = cv2.cvtColor(im_o, cv2.COLOR_YCR_CB2RGB)
     #im_o = cv2.cvtColor(im_out, cv2.COLOR_HSV2RGB)
     
-    cv2.imwrite(outputName, im_o)
-    print("Wrote to {}".format(outputName))
+    cv2.imwrite(currentDirectory + outputName, im_o)
+    print("Wrote to {}".format(currentDirectory + outputName))
 
 
-modelPath = 'model\\'
+modelPath = 'model' + os_slash
 modelName = modelPath + 'model'
 # train a new model
 if (training):
@@ -363,8 +366,8 @@ if (training):
 
 # Run an image through the net
 if not training:
-    modelPath = 'model\\'
-    modelName = modelPath + 'model8\model.ckpt'
+    modelPath = 'model' + os_slash
+    modelName = modelPath + 'model8' + os_slash + 'model.ckpt'
 
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
     with tf.device(device_name):
@@ -374,10 +377,11 @@ if not training:
     image_dir = 'inputs'
     output_dir = 'outputs'
     for directory in os.listdir(image_dir):
-        if not os.path.exists(currentDirectory+output_dir+'\\'+directory):
-            os.makedirs(currentDirectory+output_dir+'\\'+directory)
-        for image_file in os.listdir(image_dir + '\\' + directory):
-            processImage(x, y, modelName, image_dir+'\\'+directory+'\\'+image_file, output_dir+'\\'+directory+'\\'+image_file)
+        if not os.path.exists(currentDirectory+output_dir+os_slash+directory):
+            os.makedirs(currentDirectory+output_dir+os_slash+directory)
+        for image_file in os.listdir(image_dir + os_slash + directory):
+            processImage(x, y, modelName, image_dir+os_slash+directory+os_slash+image_file, output_dir+os_slash+directory+os_slash+image_file)
+        print(currentDirectory+output_dir+os_slash+directory)
 
 
 #processImage(x, y, modelName, 'input.jpg', 'output.jpg')
