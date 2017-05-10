@@ -177,9 +177,10 @@ def train():
 			lr = .9*lr
 			runTrain(0, x,y, saver, True, lr, loadName=loadPath+'model_r.ckpt', saveName=runModelPath+'model_r.ckpt')
 			runTrain(1, x,y, saver, True, lr, loadName=loadPath+'model_g.ckpt', saveName=runModelPath+'model_g.ckpt')
-def test():		runTrain(2, x,y, saver, True, lr, loadName=loadPath+'model_b.ckpt', saveName=runModelPath+'model_b.ckpt')
+			runTrain(2, x,y, saver, True, lr, loadName=loadPath+'model_b.ckpt', 	saveName=runModelPath+'model_b.ckpt')
+def test():		
 # Run an image through the net
-	path = '/mnt/6344-project-data/resized_imgs'
+	path = '/mnt/6344-project-data/resized_imgs/'
 	save_path = '/mnt/6344-project-results/'
 	img_name = 'Cafe'
 	if not os.path.exists(save_path):
