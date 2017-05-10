@@ -129,26 +129,30 @@ def processImage(modelName, imageName, savePath):
     x = tf.placeholder('float32', (1,h,w,1))
     y = buildModel(x, False)
 
-    
+    im_out = np.zeros([h,w,3])
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         saver = tf.train.Saver()
         saver.restore(sess, modelName+'model_r.ckpt')
         print('Load model from ' + modelName)
       	r = im_in[:,:,:,0]
 	r = r.reshape([1,h,w,1])
-        im_out[:,:,:,0] = y.eval(session=sess,feed_dict={x:r})
+       	out = y.eval(session=sess,feed_dict={x:r})
+	im_out[:,:,0] = out.reshape([h,w])
         saver.restore(sess, modelName+'model_g.ckpt')
         print('Load model from ' + modelName)
       	g = im_in[:,:,:,1]
 	g = g.reshape([1,h,w,1])
-	im_out[:,:,:,1] = y.eval(session=sess,feed_dict={x:g})
+	out = y.eval(session=sess,feed_dict={x:g})
+	im_out[:,:,1]= out.reshape([h,w])
         saver.restore(sess, modelName+'model_b.ckpt')
         print('Load model from ' + modelName)
       	b = im_in[:,:,:,2]
 	b = b.reshape([1,h,w,1])
-	im_out[:,:,:,2] = y.eval(session=sess,feed_dict={x:b})
-        im_out = im_out.reshape([h, w, 3])
-        imageio.imwrite(savePath+'.hdr', im_out)
+	out = y.eval(session=sess,feed_dict={x:b})
+	im_out[:,:,2] =out.reshape([h,w])
+        #im_out = im_out.reshape([h, w, 3])
+	
+        imageio.imwrite(savePath+'.hdr', np.asarray(im_out).astype('float32'))
 
 
 
