@@ -168,7 +168,7 @@ def test():
 # Run an image through the net
 	path = '/mnt/6344-project-data/resized_imgs/'
 	save_path = '/mnt/6344-project-results/'
-	img_name = 'SwissSunset'
+	img_name = 'memorial0065'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
 	processImage(modelPath+'model4/', path+img_name,save_path+img_name)
