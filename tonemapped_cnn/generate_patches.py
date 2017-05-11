@@ -34,7 +34,7 @@ def readImages(image_name, tonemapped_name):
 
 
 # generate patches for all parts of the phos dataset
-image_name_list=['AgiaGalini', 'Cafe', 'Colorcheckers', 'CreteSeashore1', 'CreteSunset1', 'CreteSunset2', 'Flowers', 'FORTH1', 'FORTH2', 'FORTH3', 'FORTH4', 'Garden', 'HorseshoeLake', 'Knossos1', 'Knossos2', 'Knossos3', 'Knossos4', 'Knossos5', 'Knossos6', 'Knossos7', 'Knossos8', 'Lake1', 'LowerLewisFalls', 'MarketMires2', 'MontSaintMichel', 'Museum1', 'RevelStoke', 'StoneTower1', 'Stream', 'SwissSunset', 'TestChart1', 'Zurich2', 'Zurich']
+image_name_list=['AgiaGalini', 'Cafe', 'Colorcheckers', 'CreteSeashore1', 'CreteSunset1', 'CreteSunset2', 'Flowers', 'FORTH1', 'FORTH2', 'FORTH3', 'FORTH4', 'Garden', 'HorseshoeLake', 'Knossos1', 'Knossos2', 'Knossos3', 'Knossos4', 'Knossos5', 'Knossos6', 'Knossos7', 'Knossos8', 'Lake1', 'LowerLewisFalls', 'MarketMires2', 'MontSaintMichel', 'Museum1', 'RevelStoke', 'StoneTower1', 'Stream', 'TestChart1', 'Zurich2', 'Zurich']
 original_image_dir = '/mnt/6344-project-data/_Images/'
 original_tonemapped_dir = '/mnt/6344-project-data/_ToneMapped/'
 output_image_dir = '/mnt/6344-project-data/_Image_patches/'

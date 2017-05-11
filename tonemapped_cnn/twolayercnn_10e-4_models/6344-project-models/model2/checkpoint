@@ -1,4 +1,0 @@
-model_checkpoint_path: "/mnt/6344-project-models/model2/model.ckpt"
-all_model_checkpoint_paths: "/mnt/6344-project-models/model0/model.ckpt"
-all_model_checkpoint_paths: "/mnt/6344-project-models/model1/model.ckpt"
-all_model_checkpoint_paths: "/mnt/6344-project-models/model2/model.ckpt"
