@@ -153,8 +153,8 @@ def train():
 	x = tf.placeholder('float32', shape=trainshape)
 	y = buildModel(x, True)
 	saver = tf.train.Saver()
-	lr = 0.0001
-	for i in range(5):
+	lr = 0.001
+	for i in range(10):
     		runModelPath = modelPath+'model'+str(i)+'/'
     		if not os.path.exists(runModelPath):
         		os.makedirs(runModelPath)
@@ -171,7 +171,7 @@ def test():
 	img_name = 'memorial0065'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'model4/', path+img_name,save_path+img_name)
+	processImage(modelPath+'model0/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
