@@ -126,8 +126,8 @@ def processImage(modelName, imageName, savePath):
     print(w,h)
     im.show()
     im_te = np.asarray(im).astype('float32')
-    im_in =  im_te.reshape([1, w, h, 3]);
-    x = tf.placeholder('float32', (1,w,h,3))
+    im_in =  im_te.reshape([1, h, w, 3]);
+    x = tf.placeholder('float32', (1,h,w,3))
     y = buildModel(x, False)
 
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
