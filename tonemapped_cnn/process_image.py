@@ -24,30 +24,30 @@ def buildModel(image, isTraining):
     	norm1 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
     	conv2 = tf.nn.relu(norm1, name='conv2')
 
-    with tf.variable_scope('conv3') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([3]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm2 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv3 = tf.nn.relu(norm2, name='conv3')
+    #with tf.variable_scope('conv3') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm2 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv3 = tf.nn.relu(norm2, name='conv3')
 
-    with tf.variable_scope('conv4') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([3]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm3 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv4 = tf.nn.relu(norm3, name='conv4')
+    #with tf.variable_scope('conv4') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm3 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv4 = tf.nn.relu(norm3, name='conv4')
 
-    with tf.variable_scope('conv5') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([3]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm4 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv5 = tf.nn.relu(norm4, name='conv5')
-    return conv5
+    #with tf.variable_scope('conv5') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm4 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv5 = tf.nn.relu(norm4, name='conv5')
+    return conv2
 
 # currently not used: do some simple transformations to get more mileage out of an image
 def setFromImage(image):
@@ -123,6 +123,8 @@ def runTrain(x,y,saver,loadModel, learning_rate_init, loadName='', saveName=''):
 def processImage(modelName, imageName, savePath):
     im = Image.open(imageName+'.jpg')
     w, h = im.size
+    print(w,h)
+    im.show()
     im_te = np.asarray(im).astype('float32')
     im_in =  im_te.reshape([1, w, h, 3]);
     x = tf.placeholder('float32', (1,w,h,3))
@@ -133,8 +135,9 @@ def processImage(modelName, imageName, savePath):
         saver.restore(sess, modelName+'model.ckpt')
         print('Load model from ' + modelName)
        	im_out = y.eval(session=sess,feed_dict={x:im_in})
-        im_out = im_out.reshape([w, h, 3]).clip(0,255)
+        im_out = im_out.reshape([h,w,3])
 	im_out = Image.fromarray(np.uint8(im_out))
+	print(im_out.size)
 	im_out.show()
         im_out.save(savePath+'.jpg')
 
@@ -150,8 +153,8 @@ def train():
 	x = tf.placeholder('float32', shape=trainshape)
 	y = buildModel(x, True)
 	saver = tf.train.Saver()
-	lr = 0.00001
-	for i in range(1):
+	lr = 0.0001
+	for i in range(5):
     		runModelPath = modelPath+'model'+str(i)+'/'
     		if not os.path.exists(runModelPath):
         		os.makedirs(runModelPath)
@@ -168,7 +171,7 @@ def test():
 	img_name = 'Cafe'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'model0/', path+img_name,save_path+img_name)
+	processImage(modelPath+'model4/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
