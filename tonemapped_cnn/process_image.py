@@ -139,7 +139,7 @@ def processImage(modelName, imageName, savePath):
 	im_out = Image.fromarray(np.uint8(im_out))
 	print(im_out.size)
 	im_out.show()
-        im_out.save(savePath+'.jpg')
+        im_out.save(savePath+'.png')
 
 
 modelPath = '/mnt/6344-project-models/'
