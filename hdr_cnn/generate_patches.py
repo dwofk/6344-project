@@ -23,7 +23,7 @@ def saveHDRPatches(image, w, savepath):
 def readImages(image_name, hdr_name):
     img = imageio.imread(image_name)
     img_h,img_w,img_c=img.shape
-    hdr = imageio.imread(hdr_name)
+    hdr = imageio.imread(hdr_name, 'HDR')
     hdr_h,hdr_w,hdr_c=hdr.shape
     cropx = min(img_h, hdr_h)
     cropy = min(img_w, hdr_w)

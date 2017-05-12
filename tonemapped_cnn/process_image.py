@@ -9,7 +9,7 @@ import argparse
 def buildModel(image, isTraining):
     # conv1
     with tf.variable_scope('conv1') as scope:
-    	kernel = tf.Variable(tf.random_normal([3, 3, 1, 64], stddev=0.05), name='weights')
+    	kernel = tf.Variable(tf.random_normal([3, 3, 3, 64], stddev=0.05), name='weights')
     	conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAME')
     	biases = tf.Variable(tf.zeros([64]), name='biases')
     	pre_activation = tf.nn.bias_add(conv, biases)
@@ -17,37 +17,37 @@ def buildModel(image, isTraining):
     	conv1 = tf.nn.relu(norm, name='conv1')
 
     with tf.variable_scope('conv2') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 64, 1], stddev=0.05), name='weights')
+    	kernel = tf.Variable(tf.random_normal([1, 1, 64, 3], stddev=0.05), name='weights')
     	conv = tf.nn.conv2d(conv1, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([1]), name='biases')
+    	biases = tf.Variable(tf.zeros([3]), name='biases')
     	pre_activation = tf.nn.bias_add(conv, biases)
     	norm1 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
     	conv2 = tf.nn.relu(norm1, name='conv2')
 
-    with tf.variable_scope('conv3') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 1, 1], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([1]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm2 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv3 = tf.nn.relu(norm2, name='conv3')
+    #with tf.variable_scope('conv3') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm2 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv3 = tf.nn.relu(norm2, name='conv3')
 
-    with tf.variable_scope('conv4') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 1, 1], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([1]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm3 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv4 = tf.nn.relu(norm3, name='conv4')
+    #with tf.variable_scope('conv4') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm3 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv4 = tf.nn.relu(norm3, name='conv4')
 
-    with tf.variable_scope('conv5') as scope:
-    	kernel = tf.Variable(tf.random_normal([1, 1, 1, 1], stddev=0.05), name='weights')
-    	conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding='SAME')
-    	biases = tf.Variable(tf.zeros([1]), name='biases')
-    	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm4 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv5 = tf.nn.relu(norm4, name='conv5')
-    return conv5
+    #with tf.variable_scope('conv5') as scope:
+    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    #	conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding='SAME')
+    #	biases = tf.Variable(tf.zeros([3]), name='biases')
+    #	pre_activation = tf.nn.bias_add(conv, biases)
+    #	norm4 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    #	conv5 = tf.nn.relu(norm4, name='conv5')
+    return conv2
 
 # currently not used: do some simple transformations to get more mileage out of an image
 def setFromImage(image):
@@ -64,10 +64,10 @@ def fileList(filepath):
 # train on all 32x32 image pieces once
 # loadModel = bool: True if a loadName is passed in, to load a model from memory, False if initializing new model
 # saveName is the location to save the new model
-def runTrain(channel, x,y,saver,loadModel, learning_rate_init, loadName='', saveName=''):
+def runTrain(x,y,saver,loadModel, learning_rate_init, loadName='', saveName=''):
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
-        trainshape = (1, 64, 64, 1)
-        norm = 1*64*64*1
+        trainshape = (1, 64, 64, 3)
+        norm = 1*64*64*3
         l = tf.placeholder('float32', shape=trainshape)
         loss = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(l, y)))/norm) # RMSE
         tf.summary.scalar('loss', loss)
@@ -79,9 +79,9 @@ def runTrain(channel, x,y,saver,loadModel, learning_rate_init, loadName='', save
         learning_rate = learning_rate_init
         optimizer = tf.train.MomentumOptimizer(learning_rate, momentum)
         train_op = optimizer.minimize(loss)
-        
+
         input_filepath = '/mnt/6344-project-data/_Image_patches/'
-        label_filepath = '/mnt/6344-project-data/_HDR_patches/'
+        label_filepath = '/mnt/6344-project-data/_ToneMapped_patches/'
         inputs = fileList(input_filepath)
         init_op = tf.initialize_all_variables()
 	sess.run(init_op)
@@ -94,66 +94,52 @@ def runTrain(channel, x,y,saver,loadModel, learning_rate_init, loadName='', save
 
         step = 0
         feed_dict = {}
+	ave_loss_value=0
         for input_file in inputs:
             fileparts = input_file.split('/')
             img_name = fileparts[-1].split('.')[0]
-            label_file = label_filepath + img_name + '.hdr'
-            im_in = imageio.imread(input_file)
-            h, w, c = im_in.shape
+            label_file = label_filepath + img_name + '.jpg'
+            im_in = Image.open(input_file)
+            w, h = im_in.size
             im_in = np.asarray(im_in).astype('float32')
-	    im_in = im_in[:,:,channel]
-            im_in = im_in.reshape([1, h, w, 1]);
+            im_in = im_in.reshape([1, w, h, 3]);
 
-            im_la = imageio.imread(label_file)
-            h, w, c = im_la.shape
+            im_la = Image.open(label_file)
+            w, h = im_la.size
             im_la = np.asarray(im_la).astype('float32')
-	    im_la = im_la[:,:,channel]
-            im_la = im_la.reshape([1, h, w, 1]);
+            im_la = im_la.reshape([1, w, h, 3]);
 
             _, loss_value = sess.run([train_op, loss], feed_dict={x:im_in, l:im_la})
-
+	    ave_loss_value+=loss_value
 	    if (step % 100 == 0):
-      		print("Step {} of {}, Loss: {}, Rate: {}".format(step, len(inputs), loss_value, learning_rate))
-            step = step + 1
+      		print("Step {} of {}, Loss: {}, Rate: {}".format(step, len(inputs), ave_loss_value/100, learning_rate))
+            	ave_loss_value=0
+	    step = step + 1
 
         #print(tf.all_variables())
         saver.save(sess, saveName) # save model checkpoint
 
-    
 # process a single image of any size using the provided net saved at modelName
 def processImage(modelName, imageName, savePath):
-    im = imageio.imread(imageName+'.jpg')
-    h, w, c = im.shape
+    im = Image.open(imageName+'.jpg')
+    w, h = im.size
+    print(w,h)
+    im.show()
     im_te = np.asarray(im).astype('float32')
     im_in =  im_te.reshape([1, h, w, 3]);
-    x = tf.placeholder('float32', (1,h,w,1))
+    x = tf.placeholder('float32', (1,h,w,3))
     y = buildModel(x, False)
 
-    im_out = np.zeros([h,w,3])
     with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         saver = tf.train.Saver()
-        saver.restore(sess, modelName+'model_r.ckpt')
+        saver.restore(sess, modelName+'model.ckpt')
         print('Load model from ' + modelName)
-      	r = im_in[:,:,:,0]
-	r = r.reshape([1,h,w,1])
-       	out = y.eval(session=sess,feed_dict={x:r})
-	im_out[:,:,0] = out.reshape([h,w])
-        saver.restore(sess, modelName+'model_g.ckpt')
-        print('Load model from ' + modelName)
-      	g = im_in[:,:,:,1]
-	g = g.reshape([1,h,w,1])
-	out = y.eval(session=sess,feed_dict={x:g})
-	im_out[:,:,1]= out.reshape([h,w])
-        saver.restore(sess, modelName+'model_b.ckpt')
-        print('Load model from ' + modelName)
-      	b = im_in[:,:,:,2]
-	b = b.reshape([1,h,w,1])
-	out = y.eval(session=sess,feed_dict={x:b})
-	im_out[:,:,2] =out.reshape([h,w])
-        #im_out = im_out.reshape([h, w, 3])
-	
-        imageio.imwrite(savePath+'.hdr', np.asarray(im_out).astype('float32'))
-
+       	im_out = y.eval(session=sess,feed_dict={x:im_in})
+        im_out = im_out.reshape([h,w,3])
+	im_out = Image.fromarray(np.uint8(im_out))
+	print(im_out.size)
+	im_out.show()
+        im_out.save(savePath+'.png')
 
 
 modelPath = '/mnt/6344-project-models/'
@@ -163,30 +149,26 @@ if not os.path.exists(modelPath):
 # Begin a new model
 #runTrain(False, 0.000001, saveName=modelPath+'model.ckpt')
 def train():
-	trainshape = (1, 64, 64, 1)
+	trainshape = (1, 64, 64, 3)
 	x = tf.placeholder('float32', shape=trainshape)
 	y = buildModel(x, True)
 	saver = tf.train.Saver()
-	lr = 0.00001
-	for i in range(1):
+	lr = 0.001
+	for i in range(10):
     		runModelPath = modelPath+'model'+str(i)+'/'
     		if not os.path.exists(runModelPath):
         		os.makedirs(runModelPath)
    	 	if i == 0:
-			runTrain(0, x,y, saver, False, lr, saveName=runModelPath+'model_r.ckpt')
-			runTrain(1, x,y, saver, False, lr, saveName=runModelPath+'model_g.ckpt')
-			runTrain(2, x,y, saver, False, lr, saveName=runModelPath+'model_b.ckpt')
+			runTrain(x,y, saver, False, lr, saveName=runModelPath+'model.ckpt')
     		else:
         		loadPath = modelPath+'model'+str(i-1)+'/'
 			lr = .9*lr
-			runTrain(0, x,y, saver, True, lr, loadName=loadPath+'model_r.ckpt', saveName=runModelPath+'model_r.ckpt')
-			runTrain(1, x,y, saver, True, lr, loadName=loadPath+'model_g.ckpt', saveName=runModelPath+'model_g.ckpt')
-			runTrain(2, x,y, saver, True, lr, loadName=loadPath+'model_b.ckpt', 	saveName=runModelPath+'model_b.ckpt')
-def test():		
+			runTrain(x,y, saver, True, lr, loadName=loadPath+'model.ckpt', saveName=runModelPath+'model.ckpt')
+def test():
 # Run an image through the net
 	path = '/mnt/6344-project-data/resized_imgs/'
 	save_path = '/mnt/6344-project-results/'
-	img_name = 'Cafe'
+	img_name = 'memorial0065'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
 	processImage(modelPath+'model0/', path+img_name,save_path+img_name)
