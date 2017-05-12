@@ -1,4 +1,4 @@
-function histSeparate(input_filename, save_format, save_path)
+function histSeparate(input_filename, num_bins, save_format, save_path)
 
     input_img = imread(fullfile(cd, 'data', input_filename));
     
@@ -26,7 +26,7 @@ function histSeparate(input_filename, save_format, save_path)
         hist_cdf(i) = hist_cdf(i) + hist_cdf(i-1);
     end
 
-    num_bins = 2; % number of exposure brackets
+    %num_bins = 2; % number of exposure brackets
 
     bin_edges = prod(size(img_V))*linspace(0, 1, num_bins+1);
     bins = discretize(hist_cdf, bin_edges);
@@ -39,18 +39,12 @@ function histSeparate(input_filename, save_format, save_path)
     thr = thr / thr(end);
 
     Vsep = ones(size(img_V,1), size(img_V,2), num_bins);
+
     for bin=1:num_bins
-        for c=1:size(img_V,2)
-            for r=1:size(img_V,1)
-                if (img_V(r,c) <= thr(bin))
-                    Vsep(r,c,bin) = thr(bin);
-                elseif (img_V(r,c) > thr(bin)) && (img_V(r,c) <= thr(bin+1))
-                    Vsep(r,c,bin) = img_V(r,c);
-                elseif (img_V(r,c) > thr(bin+1))
-                    Vsep(r,c,bin) = thr(bin+1);
-                end 
-            end
-        end
+        V_tmp = img_V;
+        V_tmp(V_tmp <= thr(bin)) = thr(bin);
+        V_tmp(V_tmp > thr(bin+1)) = thr(bin+1);
+        Vsep(:,:,bin) = V_tmp;
     end
 
     % clean or create directory for PNG output

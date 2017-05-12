@@ -17,9 +17,8 @@ function denoiseGuided(input_filename, exp_bracket_dir)
     % convert original image to YCbCr color space
     orig_img_YCbCr = rgb2ycbcr(orig_img);
 
-    nhoodSize = 5;
-    %smoothValue  = 0.001*diff(getrangefromclass(orig_imgB)).^2; % = 65
-    smoothValue = 5;
+    nhoodSize = 20;
+    smoothValue = 10;
 
     save_path = [exp_bracket_dir, '_dn'];
     if (exist(save_path, 'dir'))
@@ -42,11 +41,11 @@ function denoiseGuided(input_filename, exp_bracket_dir)
             'NeighborhoodSize', nhoodSize, ...
             'DegreeOfSmoothing', smoothValue);
 
-        out_img_RGB = ycbcr2rgb(exp_img_YCbCr);
-        %figure, imshow(out_img_RGB);
+        out_RGB = ycbcr2rgb(exp_img_YCbCr);
+        %figure, imshow(out_RGB);
 
         out_fname = [exp_bracket_dir, '_dn/', fname];
-        imwrite(out_img_RGB, out_fname);
+        imwrite(out_RGB, out_fname);
     end
     
 end
