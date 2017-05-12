@@ -8,8 +8,13 @@ import cv2
 device_name = "/cpu:0"
 #device_name = "/gpu:0"
 ycrcb = True
+customImage = True
+customName = 'ChineseGarden.png'
 input_w = 3000
 input_h = 2000
+custom_w = 870 #4032
+custom_h = 578 #3024
+kernel_size = 1
 training = False
 plusLabel = True
 #os_slash = '\\'
@@ -29,7 +34,7 @@ def prelu(x, alpha, name):
 def buildModel(image, isTraining):
     # conv1
     with tf.variable_scope('conv1') as scope:
-        kernel = tf.Variable(tf.random_normal([3, 3, 3, 32], stddev=0.05), name='weights')
+        kernel = tf.Variable(tf.random_normal([kernel_size, kernel_size, 3, 32], stddev=0.05), name='weights')
         conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAME')
         biases = tf.Variable(tf.zeros([32]), name='biases')
         pre_activation = tf.nn.bias_add(conv, biases)
@@ -327,7 +332,8 @@ def processImage(x, y, modelName, imageName, outputName):
     #im = im.convert('YCbCr')
     
     im = cv2.imread(imageName)
-    im = cv2.resize(im, (input_w, input_h), interpolation=cv2.INTER_AREA)
+    if not customImage:
+        im = cv2.resize(im, (input_w, input_h), interpolation=cv2.INTER_AREA)
     if (ycrcb):
         im = cv2.cvtColor(im, cv2.COLOR_RGB2YCR_CB)
     #im = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
@@ -365,7 +371,7 @@ if (training):
 
 
 # Run an image through the net
-if not training:
+if not training and not customImage:
     modelPath = 'model' + os_slash
     modelName = modelPath + 'model8' + os_slash + 'model.ckpt'
 
@@ -382,7 +388,18 @@ if not training:
         for image_file in os.listdir(image_dir + os_slash + directory):
             processImage(x, y, modelName, image_dir+os_slash+directory+os_slash+image_file, output_dir+os_slash+directory+os_slash+image_file)
         print(currentDirectory+output_dir+os_slash+directory)
+else:
+    modelPath = 'model' + os_slash
+    modelName = modelPath + 'model8' + os_slash + 'model.ckpt'
+    
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
+    with tf.device(device_name):
+        x = tf.placeholder('float32', shape=(custom_h, custom_w, 1, 3))
+        y = buildModel(x, True)
 
+    image_file = 'inputs/' + customName
+    output_file = 'outputs/' + customName
+    processImage(x, y, modelName, image_file, output_file)
 
 #processImage(x, y, modelName, 'input.jpg', 'output.jpg')
 #processImage(x, y, modelName, 'input2.jpg', 'output2.jpg')

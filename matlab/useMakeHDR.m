@@ -1,4 +1,4 @@
-function useMakeHDR(input_filename, exp_bracket_dir, save_path)
+function out_RGB = useMakeHDR(input_filename, exp_bracket_dir, defaultTM)
     assert(~exist(exp_bracket_dir, 'dir') == 0, ...
         'Exposure bracket directory does not exist.');
 
@@ -84,23 +84,36 @@ function useMakeHDR(input_filename, exp_bracket_dir, save_path)
         end
     end
 
-    rel_EV = (1/mid_EV) * rel_EV; % normalize so that orig_img has rel EV = 1
+    rel_EV = (1/mid_EV) * rel_EV % normalize so that orig_img has rel EV = 1
 
-    hdr = makehdr(base_filenames, 'RelativeExposure', rel_EV);
+    out_HDR = makehdr(base_filenames, 'RelativeExposure', rel_EV);
+    
+    if (defaultTM == 1)
+        out_RGB = tonemap(out_HDR, 'AdjustSaturation', 1);
+    else
+        
+        % manual implementation of Reinhard's TMO
+        % https://www.cs.utah.edu/~reinhard/cdrom/tonemap.pdf
+        
+        out_HDR_YCbCr = rgb2ycbcr(double(out_HDR));
+        out_HDR_Y = out_HDR_YCbCr(:,:,1);
 
-    hdr_YCbCr = rgb2ycbcr(double(hdr));
-    hdr_Y = hdr_YCbCr(:,:,1);
+        log_lum = log10(0.0001 + out_HDR_Y);
+        N = prod(size(out_HDR_Y));
+        Lw = exp((1/N)*sum(log_lum(:)))
 
-    Lwhite = round(max(hdr_Y(:)), 1-numel(num2str(round(max(hdr_Y(:))))));
+        alpha = 0.18;
+        L = (alpha/Lw)*out_HDR_Y;
 
-    log_lum = log10(0.0001 + hdr_Y);
-    log_avg_lum = exp((1/(prod(size(hdr_Y)))) * sum(log_lum(:)));
+        Lwhite = round(max(out_HDR_Y(:)), 1-numel(num2str(round(max(out_HDR_Y(:))))));
 
-    scale = (hdr_Y .* (1 + (1/(Lwhite^2))*hdr_Y)) ./ (1+hdr_Y);
-    hdr2rgb_scale = cat(3, scale, scale, scale);
+        Ld = (L .* (1 + (1/(Lwhite^2))*L)) ./ (1+L);
+        hdr2rgb_scale = cat(3, Ld, Ld, Ld);
 
-    rgb = uint8(double(hdr) .* hdr2rgb_scale);
-    figure('Name', 'HDR Image'), imshow(rgb, []);
-    imwrite(rgb, [save_path, '/', 'hdr_image.png']);
-
+        out_RGB = uint8(double(out_HDR) .* hdr2rgb_scale);
+        
+    end
+    
+    figure('Name', 'HDR Image'), imshow(out_RGB, []);
+    
 end

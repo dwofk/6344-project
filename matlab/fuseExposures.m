@@ -1,4 +1,4 @@
-function fuseExposures(input_filename, exp_bracket_dir, save_path)
+function fused_img_RGB = fuseExposures(input_filename, exp_bracket_dir, enhance)
 
     addpath(fullfile(cd,'/exp_fusion'));
 
@@ -21,17 +21,18 @@ function fuseExposures(input_filename, exp_bracket_dir, save_path)
     end
 
     % perform exposure fusion
-    fused_img = exposure_fusion(img_stack,[1 1 1]);
-    fused_img = uint8(255*fused_img);
+    fused_img_RGB = exposure_fusion(img_stack,[1 1 1]);
+    fused_img_RGB = uint8(255*fused_img_RGB);
     
-    % adjust saturation and brightness of fused image
-    fused_img_HSV = rgb2hsv(fused_img);
-    fused_img_HSV(:,:,2) = fused_img_HSV(:,:,2) * 1.3;
-    fused_img_HSV(:,:,3) = fused_img_HSV(:,:,3) * 0.85;
-    fused_img_HSV(fused_img_HSV > 1) = 1;
-    fused_img_RGB = hsv2rgb(fused_img_HSV);
+    if (enhance == 1)
+        % adjust saturation and brightness of fused image
+        fused_img_HSV = rgb2hsv(fused_img_RGB);
+        fused_img_HSV(:,:,2) = fused_img_HSV(:,:,2) * 1.3;
+        fused_img_HSV(:,:,3) = fused_img_HSV(:,:,3) * 0.85;
+        fused_img_HSV(fused_img_HSV > 1) = 1;
+        fused_img_RGB = hsv2rgb(fused_img_HSV);
+    end
 
     figure('Name', 'Fused Image'), imshow(fused_img_RGB);
-    imwrite(fused_img_RGB, [save_path, '/', 'fused_image.png']);
 
 end
