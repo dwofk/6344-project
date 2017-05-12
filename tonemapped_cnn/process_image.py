@@ -167,11 +167,11 @@ def train():
 def test():
 # Run an image through the net
 	path = '/mnt/6344-project-data/resized_imgs/'
-	save_path = '/mnt/6344-project-results/twolayercnn_10e-4_models/'
+	save_path = '/mnt/6344-project-results/'
 	img_name = 'chinese_garden2'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'model4/', path+img_name,save_path+img_name)
+	processImage(modelPath+'/twolayercnn_10e-4_models/model2/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
