@@ -135,7 +135,7 @@ def processImage(modelName, imageName, savePath):
         saver.restore(sess, modelName+'model.ckpt')
         print('Load model from ' + modelName)
        	im_out = y.eval(session=sess,feed_dict={x:im_in})
-        im_out = im_out.reshape([h,w,3])
+        im_out = im_out.reshape([h,w,3]).clip(0,255)
 	im_out = Image.fromarray(np.uint8(im_out))
 	print(im_out.size)
 	im_out.show()
@@ -167,11 +167,11 @@ def train():
 def test():
 # Run an image through the net
 	path = '/mnt/6344-project-data/resized_imgs/'
-	save_path = '/mnt/6344-project-results/'
-	img_name = 'memorial0065'
+	save_path = '/mnt/6344-project-results/twolayercnn_10e-4_models/'
+	img_name = 'chinese_garden2'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'model0/', path+img_name,save_path+img_name)
+	processImage(modelPath+'model4/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
