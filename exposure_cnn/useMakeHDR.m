@@ -1,12 +1,17 @@
 clear variables;
 
 repo = '/home/vysarge/Documents/repos/6344-project/';
-evaluating = '3x3';
+evaluating = '1x1';
 os_slash = '/';
 defaultTonemapping = 0;
+custom = 1;
 
 % hack to get this to work on linux; dir is behaving strangely with *
-input_files = ls(fullfile(repo, 'exposure_cnn','inputs','*','*.jpg'));
+if (custom)
+    input_files = ls(fullfile(repo, 'exposure_cnn', 'inputs', 'ChineseGarden.png'));
+else
+    input_files = ls(fullfile(repo, 'exposure_cnn','inputs','*','*.png'));
+end
 splits = find(input_files==sprintf('\n'));
 
 save_path = fullfile(repo, 'exposure_cnn','matlab_outputs', 'makehdr');
@@ -21,7 +26,11 @@ while (e < max(size(input_files)))
     input_filename = input_files(b:e-1);
     disp(input_filename);
     slashes = find(input_filename==os_slash);
-    file_id = input_filename(slashes(end-1):end); % pull out the part of the file that is the same for other folders
+    if custom
+        file_id = input_filename(slashes(end):end); % pull out the part of the file that is the same for other folders
+    else
+        file_id = input_filename(slashes(end-1):end); % pull out the part of the file that is the same for other folders
+    end
     disp(file_id);
     
     im_orig = imread(input_filename);

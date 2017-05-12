@@ -1,3 +1,11 @@
+#
+# This file, when run, will take the images in inputs_large/ and resize them to 3000x2000 in size, then save them
+# to inputs/
+# This causes inputs to be at a size that is small enough to be hosted by tensorflow at once (tested on GTX 1060 as
+# well as Intel i5 6500 CPU-only)
+#
+
+
 import cv2
 import os
 
