@@ -24,13 +24,13 @@ def buildModel(image, isTraining):
     	#norm1 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
     	conv2 = tf.nn.relu(pre_activation, name='conv2')
 
-    #with tf.variable_scope('conv3') as scope:
-    #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
-    #	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
-    #	biases = tf.Variable(tf.zeros([3]), name='biases')
-    #	pre_activation = tf.nn.bias_add(conv, biases)
+    with tf.variable_scope('conv3') as scope:
+    	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
+    	conv = tf.nn.conv2d(conv2, kernel, [1, 1, 1, 1], padding='SAME')
+    	biases = tf.Variable(tf.zeros([3]), name='biases')
+    	pre_activation = tf.nn.bias_add(conv, biases)
     #	norm2 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    #	conv3 = tf.nn.relu(norm2, name='conv3')
+    	conv3 = tf.nn.relu(pre_activation, name='conv3')
 
     #with tf.variable_scope('conv4') as scope:
     #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
@@ -47,7 +47,7 @@ def buildModel(image, isTraining):
     #	pre_activation = tf.nn.bias_add(conv, biases)
     #	norm4 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
     #	conv5 = tf.nn.relu(norm4, name='conv5')
-    return conv2
+    return conv3
 
 # currently not used: do some simple transformations to get more mileage out of an image
 def setFromImage(image):
@@ -72,7 +72,7 @@ def runTrain(x,y,saver,loadModel, learning_rate_init, loadName='', saveName=''):
         loss = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(l, y)))/norm) # RMSE
         tf.summary.scalar('loss', loss)
 
-        momentum = 0.9
+        momentum = 0.85
         decay_steps = 10000
         decay_rate = 0.9
         global_step = tf.Variable(0, trainable=False)
@@ -153,7 +153,7 @@ def train():
 	x = tf.placeholder('float32', shape=trainshape)
 	y = buildModel(x, True)
 	saver = tf.train.Saver()
-	lr = 0.0001
+	lr = 0.000095
 	for i in range(1):
     		runModelPath = modelPath+'model'+str(i)+'/'
     		if not os.path.exists(runModelPath):
@@ -171,7 +171,7 @@ def test():
 	img_name = 'chinese_garden2'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'/model0/', path+img_name,save_path+img_name)
+	processImage(modelPath+'model0/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
