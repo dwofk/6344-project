@@ -13,16 +13,16 @@ def buildModel(image, isTraining):
     	conv = tf.nn.conv2d(image, kernel, [1, 1, 1, 1], padding='SAME')
     	biases = tf.Variable(tf.zeros([64]), name='biases')
     	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv1 = tf.nn.relu(norm, name='conv1')
+#    	norm = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    	conv1 = tf.nn.relu(pre_activation, name='conv1')
 
     with tf.variable_scope('conv2') as scope:
     	kernel = tf.Variable(tf.random_normal([1, 1, 64, 3], stddev=0.05), name='weights')
     	conv = tf.nn.conv2d(conv1, kernel, [1, 1, 1, 1], padding='SAME')
     	biases = tf.Variable(tf.zeros([3]), name='biases')
     	pre_activation = tf.nn.bias_add(conv, biases)
-    	norm1 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
-    	conv2 = tf.nn.relu(norm1, name='conv2')
+    	#norm1 = tf.contrib.layers.batch_norm(pre_activation, is_training=isTraining)
+    	conv2 = tf.nn.relu(pre_activation, name='conv2')
 
     #with tf.variable_scope('conv3') as scope:
     #	kernel = tf.Variable(tf.random_normal([1, 1, 3, 3], stddev=0.05), name='weights')
@@ -153,8 +153,8 @@ def train():
 	x = tf.placeholder('float32', shape=trainshape)
 	y = buildModel(x, True)
 	saver = tf.train.Saver()
-	lr = 0.001
-	for i in range(10):
+	lr = 0.0001
+	for i in range(1):
     		runModelPath = modelPath+'model'+str(i)+'/'
     		if not os.path.exists(runModelPath):
         		os.makedirs(runModelPath)
@@ -171,7 +171,7 @@ def test():
 	img_name = 'chinese_garden2'
 	if not os.path.exists(save_path):
 		os.makedirs(save_path)
-	processImage(modelPath+'/twolayercnn_10e-4_models/model2/', path+img_name,save_path+img_name)
+	processImage(modelPath+'/model0/', path+img_name,save_path+img_name)
 
 
 parser = argparse.ArgumentParser()
