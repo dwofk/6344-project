@@ -3,3 +3,6 @@
 *.jpg
 *.png
 *.bmp
+matlab/exp_fusion/*
+matlab/hdrvdp-2.2.1/*
+ssim.m
