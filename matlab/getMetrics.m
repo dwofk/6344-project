@@ -56,7 +56,7 @@ mkhdr_1x1_img = imread(fullfile(exp_dir, 'makehdr', '1x1.png'));
 mkhdr_3x3_img = imread(fullfile(exp_dir, 'makehdr', '3x3.png'));
 
 % CNN-generated tonemapped HDR image
-cnn_exp_dir = fullfile('..', 'tonemapped_cnn', 'twolayernobnorm_10e-4_results');
+cnn_exp_dir = fullfile('..', 'tonemapped_cnn', 'threelayer_9.5e-5_results');
 cnn_diffmaps_dir = fullfile('..', 'tonemapped_cnn', 'diff_maps');
 cnn_hdr_img = imread(fullfile(cnn_exp_dir, 'chinese_garden2.png'));
 

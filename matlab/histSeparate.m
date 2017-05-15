@@ -19,8 +19,10 @@ function histSeparate(input_filename, num_bins, save_format, save_path)
 
     %V = medfilt2(V, [5 5]);
 
-    img_hist = imhist(img_V);
-
+    img_hist = imhist(img_V)
+    figure, imhist(img_V)
+    
+    % histogram CDF
     hist_cdf = img_hist;
     for i=2:size(hist_cdf)
         hist_cdf(i) = hist_cdf(i) + hist_cdf(i-1);
@@ -28,23 +30,31 @@ function histSeparate(input_filename, num_bins, save_format, save_path)
 
     %num_bins = 2; % number of exposure brackets
 
-    bin_edges = prod(size(img_V))*linspace(0, 1, num_bins+1);
-    bins = discretize(hist_cdf, bin_edges);
+    % determine equally spaced edges for bins
+    % each bin will have same total number of pixels
+    bin_edges = prod(size(img_V))*linspace(0, 1, num_bins+1)
+    % separate histogram CDF into bins
+    bins = discretize(hist_cdf, bin_edges)
 
+    % determine bin thresholds
     thr = zeros(1, num_bins+1);
     for i=1:num_bins
-        thr((i+1):end) = thr((i+1):end) + sum(bins==i);
+        % sum total number of intensities falling into each bin
+        thr((i+1):end) = thr((i+1):end) + sum(bins==i) - 1;
     end
 
-    thr = thr / thr(end);
+    % normalize the bin thresholds
+    thr = thr / thr(end)
 
     Vsep = ones(size(img_V,1), size(img_V,2), num_bins);
 
+    % separate value channel of image into bins
     for bin=1:num_bins
         V_tmp = img_V;
         V_tmp(V_tmp <= thr(bin)) = thr(bin);
         V_tmp(V_tmp > thr(bin+1)) = thr(bin+1);
         Vsep(:,:,bin) = V_tmp;
+        figure, imhist(Vsep(:,:,bin))
     end
 
     % clean or create directory for PNG output
@@ -70,6 +80,7 @@ function histSeparate(input_filename, num_bins, save_format, save_path)
             (max(max(Vsep(:,:,bin))) - min(min(Vsep(:,:,bin))));
         Vsep(:,:,bin) = adapthisteq(Vsep(:,:,bin));
         %Vsep(:,:,bin) = imsharpen(Vsep(:,:,bin));
+        figure, imhist(Vsep(:,:,bin))
 
         out_HSV = cat(3, img_H, img_S, Vsep(:,:,bin));
         out_RGB = hsv2rgb(out_HSV);

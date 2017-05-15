@@ -57,7 +57,3 @@ if (highlights > 0)
     imwrite(edr_img, [save_path, '/', 'edr_image.png']);
     
 end
-
-%% Get Output Images from CNN-Based Techniques
-
-%% Calculate Metrics
